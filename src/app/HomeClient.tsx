@@ -28,6 +28,33 @@ type MenuItem = {
 
 const LOCALE_BY_LANG: Record<string, string> = { pt: "pt-PT", en: "en-GB", fr: "fr-FR", de: "de-DE" };
 
+/**
+ * Distribui as categorias por 2 colunas equilibrando o número de itens
+ * (em vez de deixar ao critério do CSS, que às vezes deixa uma coluna
+ * quase vazia). Categorias maiores entram primeiro, sempre na coluna
+ * mais curta no momento.
+ */
+function splitIntoColumns<T extends { category: string }>(
+  categories: string[],
+  items: T[]
+): [string[], string[]] {
+  const counts = categories
+    .map((category) => ({
+      category,
+      count: items.filter((i) => i.category === category).length,
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  const columns: [string[], string[]] = [[], []];
+  const totals = [0, 0];
+  for (const { category, count } of counts) {
+    const target = totals[0] <= totals[1] ? 0 : 1;
+    columns[target].push(category);
+    totals[target] += count;
+  }
+  return columns;
+}
+
 export default function HomeClient({
   specials,
   menuItems,
@@ -267,32 +294,39 @@ export default function HomeClient({
           {categories.length === 0 ? (
             <p className="text-neutral-500 italic text-center">{t("menu.empty")}</p>
           ) : (
-            <div className="grid sm:grid-cols-2 gap-x-16 gap-y-12">
-              {categories.map((category) => (
-                <Reveal key={category}>
-                  <h3 className="flex items-center gap-2 font-[family-name:var(--font-display)] font-bold text-2xl text-[var(--brand-black)] mb-4 pb-2 border-b-2 border-[var(--brand-orange)]">
-                    <CategoryIcon category={category} className="w-6 h-6 text-[var(--brand-orange)] shrink-0" />
-                    {category}
-                  </h3>
-                  <ul className="space-y-4 mt-2">
-                    {menuItems
-                      .filter((i) => i.category === category)
-                      .map((item) => (
-                        <li key={item.id} className="flex items-baseline gap-1">
-                          <div>
-                            <p className="font-semibold">{item.name}</p>
-                            {item.description && (
-                              <p className="text-sm text-neutral-500">{item.description}</p>
-                            )}
-                          </div>
-                          <span className="menu-leader text-neutral-400" aria-hidden />
-                          <span className="font-[family-name:var(--font-display)] font-bold whitespace-nowrap text-[var(--brand-orange)]">
-                            {formatPrice(item.price)}
-                          </span>
-                        </li>
-                      ))}
-                  </ul>
-                </Reveal>
+            <div className="grid sm:grid-cols-2 gap-x-16">
+              {splitIntoColumns(categories, menuItems).map((column, colIndex) => (
+                <div key={colIndex} className="space-y-12">
+                  {column.map((category) => (
+                    <Reveal key={category}>
+                      <h3 className="flex items-center gap-2 font-[family-name:var(--font-display)] font-bold text-2xl text-[var(--brand-black)] mb-4 pb-2 border-b-2 border-[var(--brand-orange)]">
+                        <CategoryIcon
+                          category={category}
+                          className="w-6 h-6 text-[var(--brand-orange)] shrink-0"
+                        />
+                        {category}
+                      </h3>
+                      <ul className="space-y-4 mt-2">
+                        {menuItems
+                          .filter((i) => i.category === category)
+                          .map((item) => (
+                            <li key={item.id} className="flex items-baseline gap-1">
+                              <div>
+                                <p className="font-semibold">{item.name}</p>
+                                {item.description && (
+                                  <p className="text-sm text-neutral-500">{item.description}</p>
+                                )}
+                              </div>
+                              <span className="menu-leader text-neutral-400" aria-hidden />
+                              <span className="font-[family-name:var(--font-display)] font-bold whitespace-nowrap text-[var(--brand-orange)]">
+                                {formatPrice(item.price)}
+                              </span>
+                            </li>
+                          ))}
+                      </ul>
+                    </Reveal>
+                  ))}
+                </div>
               ))}
             </div>
           )}

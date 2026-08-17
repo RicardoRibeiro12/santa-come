@@ -2,21 +2,23 @@ import { prisma } from "@/lib/prisma";
 import { fetchMenuFromSheet } from "@/lib/menuSheet";
 import { fetchDailySpecialsFromSheet } from "@/lib/dailySpecialsSheet";
 import { fetchActiveCampaign } from "@/lib/seasonalCampaign";
+import { isUsingSheets } from "@/lib/dataSource";
 import HomeClient from "./HomeClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const todayStr = new Date().toISOString().slice(0, 10);
+  const useSheets = isUsingSheets();
 
   const [sheetSpecials, sheetMenu, campaign] = await Promise.all([
-    fetchDailySpecialsFromSheet(),
-    fetchMenuFromSheet(),
+    useSheets ? fetchDailySpecialsFromSheet() : Promise.resolve(null),
+    useSheets ? fetchMenuFromSheet() : Promise.resolve(null),
     fetchActiveCampaign(),
   ]);
 
-  // Se DAILY_SPECIALS_SHEET_CSV_URL estiver configurado, os pratos do dia vêm
-  // do Google Sheets; caso contrário, usa-se o que foi introduzido em /admin.
+  // DATA_SOURCE="database" força o uso da base de dados mesmo que as
+  // variáveis *_SHEET_CSV_URL continuem definidas — ver src/lib/dataSource.ts.
   const specials =
     sheetSpecials ??
     (await prisma.dailySpecial.findMany({
@@ -25,8 +27,6 @@ export default async function Home() {
       take: 20,
     }));
 
-  // Se MENU_SHEET_CSV_URL estiver configurado, o menu vem do Google Sheets;
-  // caso contrário, usa-se o que foi introduzido no painel /admin.
   const menuItems =
     sheetMenu ??
     (await prisma.menuItem.findMany({

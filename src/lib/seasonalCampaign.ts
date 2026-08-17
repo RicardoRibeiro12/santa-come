@@ -9,6 +9,17 @@ export type SeasonalCampaign = {
   description: string | null;
 };
 
+export type SeasonalCampaignRow = {
+  campanha: string;
+  ativo: boolean;
+  titulo: string;
+  subtitulo: string | null;
+  dataInicio: string | null;
+  dataFim: string | null;
+  preco: number | null;
+  descricao: string | null;
+};
+
 type CampaignRow = {
   campanha?: string;
   ativo?: string;
@@ -20,13 +31,7 @@ type CampaignRow = {
   descricao?: string;
 };
 
-/**
- * Se SEASONAL_SHEET_CSV_URL estiver definido, lê a aba "Epocas" do Google
- * Sheets e devolve a primeira campanha marcada como "ativo = sim" (o
- * interruptor liga/desliga fica na própria folha). Sem variável, ou sem
- * nenhuma campanha ativa, devolve null e nenhum banner é mostrado.
- */
-export async function fetchActiveCampaign(): Promise<SeasonalCampaign | null> {
+async function fetchCampaignRows(): Promise<CampaignRow[] | null> {
   const url = process.env.SEASONAL_SHEET_CSV_URL;
   if (!url) return null;
 
@@ -43,9 +48,20 @@ export async function fetchActiveCampaign(): Promise<SeasonalCampaign | null> {
     transformHeader: (h) => h.trim().toLowerCase(),
   });
 
-  const active = (parsed.data ?? []).find(
-    (row) => (row.ativo ?? "").trim().toLowerCase() === "sim"
-  );
+  return parsed.data ?? [];
+}
+
+/**
+ * Se SEASONAL_SHEET_CSV_URL estiver definido, lê a aba "Epocas" do Google
+ * Sheets e devolve a primeira campanha marcada como "ativo = sim" (o
+ * interruptor liga/desliga fica na própria folha). Sem variável, ou sem
+ * nenhuma campanha ativa, devolve null e nenhum banner é mostrado.
+ */
+export async function fetchActiveCampaign(): Promise<SeasonalCampaign | null> {
+  const rows = await fetchCampaignRows();
+  if (!rows) return null;
+
+  const active = rows.find((row) => (row.ativo ?? "").trim().toLowerCase() === "sim");
   if (!active || !active.titulo) return null;
 
   const priceRaw = (active.preco ?? "").replace(",", ".").trim();
@@ -59,4 +75,27 @@ export async function fetchActiveCampaign(): Promise<SeasonalCampaign | null> {
     price: price && !Number.isNaN(price) ? price : null,
     description: active.descricao?.trim() || null,
   };
+}
+
+/** Todas as linhas da aba "Epocas", tal como estão na folha — usado no /admin (só leitura). */
+export async function fetchAllCampaigns(): Promise<SeasonalCampaignRow[] | null> {
+  const rows = await fetchCampaignRows();
+  if (!rows) return null;
+
+  return rows
+    .filter((row) => row.titulo)
+    .map((row) => {
+      const priceRaw = (row.preco ?? "").replace(",", ".").trim();
+      const price = priceRaw ? Number(priceRaw) : null;
+      return {
+        campanha: row.campanha?.trim() || row.titulo!.trim(),
+        ativo: (row.ativo ?? "").trim().toLowerCase() === "sim",
+        titulo: row.titulo!.trim(),
+        subtitulo: row.subtitulo?.trim() || null,
+        dataInicio: row.data_inicio?.trim() || null,
+        dataFim: row.data_fim?.trim() || null,
+        preco: price && !Number.isNaN(price) ? price : null,
+        descricao: row.descricao?.trim() || null,
+      };
+    });
 }
