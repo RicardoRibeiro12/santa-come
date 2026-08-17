@@ -1,6 +1,7 @@
 import type { SheetMenuItem } from "@/lib/menuSheet";
 import type { SheetDailySpecial } from "@/lib/dailySpecialsSheet";
 import type { SeasonalCampaignRow } from "@/lib/seasonalCampaign";
+import { splitIntoColumns } from "@/lib/splitIntoColumns";
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(price);
@@ -57,21 +58,30 @@ export default function SheetsPreview({
           <p className="text-sm text-neutral-500 italic">Nada publicado na aba &quot;Menu&quot;.</p>
         ) : (
           <div className="grid sm:grid-cols-2 gap-6">
-            {categories.map((category) => (
-              <div key={category}>
-                <p className="text-xs uppercase tracking-wide text-neutral-400 mb-1">{category}</p>
-                <ul className="divide-y divide-neutral-100 text-sm">
-                  {menuItems
-                    .filter((i) => i.category === category)
-                    .map((item) => (
-                      <li key={item.id} className="py-1.5 flex items-center justify-between gap-4">
-                        <span>{item.name}</span>
-                        <span className="font-semibold whitespace-nowrap">
-                          {formatPrice(item.price)}
-                        </span>
-                      </li>
-                    ))}
-                </ul>
+            {splitIntoColumns(categories, menuItems).map((column, colIndex) => (
+              <div key={colIndex} className="space-y-6">
+                {column.map((category) => (
+                  <div key={category}>
+                    <p className="text-xs uppercase tracking-wide text-neutral-400 mb-1">
+                      {category}
+                    </p>
+                    <ul className="divide-y divide-neutral-100 text-sm">
+                      {menuItems
+                        .filter((i) => i.category === category)
+                        .map((item) => (
+                          <li
+                            key={item.id}
+                            className="py-1.5 flex items-center justify-between gap-4"
+                          >
+                            <span>{item.name}</span>
+                            <span className="font-semibold whitespace-nowrap">
+                              {formatPrice(item.price)}
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
