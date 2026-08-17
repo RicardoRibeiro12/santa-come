@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuthResponse } from "@/lib/auth";
 import { z } from "zod";
 
 const menuItemSchema = z.object({
@@ -19,6 +20,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const unauthorized = await requireAuthResponse();
+  if (unauthorized) return unauthorized;
+
   const body = await request.json().catch(() => null);
   const parsed = menuItemSchema.safeParse(body);
   if (!parsed.success) {

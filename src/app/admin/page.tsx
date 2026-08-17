@@ -1,9 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { isAuthenticated } from "@/lib/auth";
 import AdminDashboard from "./AdminDashboard";
 import LogoutButton from "./LogoutButton";
 
-export default function AdminPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminPage() {
+  if (!(await isAuthenticated())) {
+    redirect("/admin/login");
+  }
+
   return (
     <div className="flex-1 flex flex-col bg-neutral-100">
       <header className="bg-[--brand-black] text-white">

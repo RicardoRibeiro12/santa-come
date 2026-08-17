@@ -50,4 +50,14 @@ export async function isAuthenticated() {
   return verifySessionToken(token);
 }
 
+/**
+ * Guard for API route handlers that mutate data. Returns a 401 Response if
+ * the request isn't authenticated, or null if it's fine to proceed.
+ */
+export async function requireAuthResponse() {
+  if (await isAuthenticated()) return null;
+  const { NextResponse } = await import("next/server");
+  return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+}
+
 export { COOKIE_NAME };

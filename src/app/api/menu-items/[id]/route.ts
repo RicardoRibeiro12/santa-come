@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuthResponse } from "@/lib/auth";
 import { z } from "zod";
 
 const updateSchema = z.object({
@@ -15,6 +16,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const unauthorized = await requireAuthResponse();
+  if (unauthorized) return unauthorized;
+
   const { id } = await params;
   const body = await request.json().catch(() => null);
   const parsed = updateSchema.safeParse(body);
@@ -33,6 +37,9 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const unauthorized = await requireAuthResponse();
+  if (unauthorized) return unauthorized;
+
   const { id } = await params;
   try {
     await prisma.menuItem.delete({ where: { id } });
