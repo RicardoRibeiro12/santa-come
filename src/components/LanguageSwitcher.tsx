@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LANG_LABELS, SUPPORTED_LANGS } from "@/lib/i18n";
 import { useLanguage } from "./LanguageProvider";
+import FlagIcon from "./FlagIcon";
 
 export default function LanguageSwitcher() {
   const { lang, setLang } = useLanguage();
@@ -29,7 +30,7 @@ export default function LanguageSwitcher() {
         aria-label="Escolher idioma"
         className="flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-sm hover:border-white/50 transition-colors"
       >
-        <span aria-hidden>{LANG_LABELS[lang].flag}</span>
+        <FlagIcon lang={lang} />
         <span className="hidden sm:inline">{lang.toUpperCase()}</span>
       </button>
       {open && (
@@ -51,7 +52,7 @@ export default function LanguageSwitcher() {
                 code === lang ? "bg-white/10 font-semibold" : ""
               }`}
             >
-              <span aria-hidden>{LANG_LABELS[code].flag}</span>
+              <FlagIcon lang={code} />
               {LANG_LABELS[code].name}
             </button>
           ))}
