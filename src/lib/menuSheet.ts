@@ -49,7 +49,7 @@ export async function fetchMenuFromSheet(): Promise<SheetMenuItem[] | null> {
   const url = process.env.MENU_SHEET_CSV_URL;
   if (!url) return null;
 
-  const res = await fetch(url, { next: { revalidate: 60 } });
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     console.error(`Não foi possível ler o Google Sheets do menu (status ${res.status}).`);
     return null;

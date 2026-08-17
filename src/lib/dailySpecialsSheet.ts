@@ -36,7 +36,7 @@ export async function fetchDailySpecialsFromSheet(): Promise<SheetDailySpecial[]
   const url = process.env.DAILY_SPECIALS_SHEET_CSV_URL;
   if (!url) return null;
 
-  const res = await fetch(url, { next: { revalidate: 60 } });
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     console.error(`Não foi possível ler o Google Sheets de pratos do dia (status ${res.status}).`);
     return null;

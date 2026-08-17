@@ -35,7 +35,7 @@ async function fetchCampaignRows(): Promise<CampaignRow[] | null> {
   const url = process.env.SEASONAL_SHEET_CSV_URL;
   if (!url) return null;
 
-  const res = await fetch(url, { next: { revalidate: 60 } });
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     console.error(`Não foi possível ler o Google Sheets de épocas festivas (status ${res.status}).`);
     return null;
