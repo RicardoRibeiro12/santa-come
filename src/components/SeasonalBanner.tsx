@@ -19,7 +19,7 @@ export default function SeasonalBanner({ campaign }: { campaign: SeasonalCampaig
   const range = formatRange(campaign.startDate, campaign.endDate);
 
   return (
-    <div className="bg-[--brand-black] text-white border-b-2 border-[--brand-orange]">
+    <div className="bg-[var(--brand-black)] text-white border-b-2 border-[var(--brand-orange)]">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -27,7 +27,7 @@ export default function SeasonalBanner({ campaign }: { campaign: SeasonalCampaig
         aria-expanded={open}
       >
         <span className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-          <span className="font-[family-name:var(--font-display)] font-bold text-lg text-[--brand-orange-bright]">
+          <span className="font-[family-name:var(--font-display)] font-bold text-lg text-[var(--brand-orange-bright)]">
             {campaign.title}
           </span>
           {campaign.subtitle && <span className="text-sm text-white/80">{campaign.subtitle}</span>}
@@ -41,7 +41,7 @@ export default function SeasonalBanner({ campaign }: { campaign: SeasonalCampaig
             </span>
           )}
         </span>
-        <span className="text-sm underline shrink-0 text-white/90">
+        <span className="text-xs font-semibold uppercase tracking-wide shrink-0 border border-[var(--brand-orange)] text-[var(--brand-orange-bright)] rounded-full px-3 py-1.5 hover:bg-[var(--brand-orange)] hover:text-white transition-colors">
           {open ? "fechar" : "saber mais"}
         </span>
       </button>

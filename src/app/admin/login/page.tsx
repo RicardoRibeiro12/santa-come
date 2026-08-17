@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-[--brand-black] px-6 py-16">
+    <div className="flex-1 flex items-center justify-center bg-[var(--brand-black)] px-6 py-16">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg p-8">
         <div className="flex flex-col items-center gap-3 mb-6">
           <Image src="/images/logo.jpg" alt="Santa Come" width={64} height={64} className="rounded-full" />
@@ -54,14 +54,14 @@ export default function AdminLoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[--brand-orange]"
+              className="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
             />
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[--brand-orange] text-white rounded-lg py-2.5 font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full bg-[var(--brand-orange)] text-white rounded-lg py-2.5 font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {loading ? "A entrar..." : "Entrar"}
           </button>

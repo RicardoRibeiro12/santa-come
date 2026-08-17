@@ -2,9 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SeasonalBanner from "@/components/SeasonalBanner";
+import Reveal from "@/components/Reveal";
+import CategoryIcon from "@/components/CategoryIcon";
 import type { SeasonalCampaign } from "@/lib/seasonalCampaign";
 
 type Special = {
@@ -38,6 +41,14 @@ export default function HomeClient({
 }) {
   const { lang, t } = useLanguage();
   const locale = LOCALE_BY_LANG[lang] ?? "pt-PT";
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(price);
@@ -63,10 +74,22 @@ export default function HomeClient({
     [t("days.sunday"), "11:30–22:30"],
   ];
 
+  const navLinks = [
+    { href: "#pratos-do-dia", label: t("nav.dailySpecials") },
+    { href: "#menu", label: t("nav.menu") },
+    { href: "#contactos", label: t("nav.contact") },
+  ];
+
   return (
     <div className="flex-1 flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-[--brand-black]/90 backdrop-blur text-white border-b border-white/10">
+      {/* Header — flutua transparente sobre o hero e fica opaco ao fazer scroll */}
+      <header
+        className={`fixed top-0 inset-x-0 z-50 text-white transition-colors duration-300 ${
+          scrolled || mobileOpen
+            ? "bg-[var(--brand-black)] border-b border-white/10"
+            : "bg-gradient-to-b from-black/50 to-transparent border-b border-transparent"
+        }`}
+      >
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Image
@@ -74,7 +97,7 @@ export default function HomeClient({
               alt="Santa Come"
               width={48}
               height={48}
-              className="rounded-full ring-2 ring-[--brand-orange]/60"
+              className="rounded-full ring-2 ring-[var(--brand-orange)]/60"
               priority
             />
             <div>
@@ -86,55 +109,93 @@ export default function HomeClient({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 sm:gap-6">
             <nav className="hidden sm:flex items-center gap-8 text-sm uppercase tracking-wider">
-              <a href="#pratos-do-dia" className="hover:text-[--brand-orange-bright] transition-colors">
-                {t("nav.dailySpecials")}
-              </a>
-              <a href="#menu" className="hover:text-[--brand-orange-bright] transition-colors">
-                {t("nav.menu")}
-              </a>
-              <a href="#contactos" className="hover:text-[--brand-orange-bright] transition-colors">
-                {t("nav.contact")}
-              </a>
+              {navLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="hover:text-[var(--brand-orange-bright)] transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
             </nav>
             <LanguageSwitcher />
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={mobileOpen}
+              className="sm:hidden flex flex-col justify-center items-center gap-1.5 w-9 h-9 -mr-1.5"
+            >
+              <span
+                className={`block h-0.5 w-5 bg-white transition-transform ${
+                  mobileOpen ? "translate-y-2 rotate-45" : ""
+                }`}
+              />
+              <span className={`block h-0.5 w-5 bg-white transition-opacity ${mobileOpen ? "opacity-0" : ""}`} />
+              <span
+                className={`block h-0.5 w-5 bg-white transition-transform ${
+                  mobileOpen ? "-translate-y-2 -rotate-45" : ""
+                }`}
+              />
+            </button>
           </div>
         </div>
+        {mobileOpen && (
+          <nav className="sm:hidden border-t border-white/10 px-6 py-4 flex flex-col gap-4 text-sm uppercase tracking-wider">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="hover:text-[var(--brand-orange-bright)] transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        )}
       </header>
 
-      {campaign && <SeasonalBanner campaign={campaign} />}
+      {campaign && (
+        <div className="fixed top-[80px] inset-x-0 z-40">
+          <SeasonalBanner campaign={campaign} />
+        </div>
+      )}
 
       {/* Hero */}
-      <section className="relative grain overflow-hidden bg-[--brand-black] text-white scallop-bottom">
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 1px, transparent 26px)",
-          }}
+      <section className="relative overflow-hidden bg-[var(--brand-black)] text-white min-h-[86vh] flex flex-col justify-end">
+        <Image
+          src="/images/interior.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
         />
-        <div className="relative mx-auto max-w-6xl px-6 pt-20 pb-28 text-center">
-          <span className="font-[family-name:var(--font-script)] text-3xl text-[--brand-mustard] block -rotate-2">
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-black)] via-[var(--brand-black)]/55 to-transparent" />
+        <div className="relative mx-auto max-w-6xl px-6 pb-16 pt-32 text-center">
+          <span className="font-[family-name:var(--font-script)] text-3xl text-[var(--brand-mustard)] block -rotate-2">
             {t("hero.eyebrow")}
           </span>
-          <h1 className="font-[family-name:var(--font-display)] font-black tracking-tight text-[clamp(3rem,10vw,7.5rem)] leading-[0.95] mt-1 text-balance">
+          <h1 className="font-[family-name:var(--font-display)] font-black tracking-tight text-[clamp(3rem,10vw,7.5rem)] leading-[0.95] mt-1 text-balance drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)]">
             Santa Come
           </h1>
-          <p className="mt-6 text-white/70 max-w-xl mx-auto text-lg text-balance">
+          <p className="mt-6 text-white/90 max-w-xl mx-auto text-lg text-balance drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
             {t("hero.subtitle")}
           </p>
           <div className="mt-10 flex justify-center gap-4 flex-wrap">
             <a
               href="#pratos-do-dia"
-              className="bg-[--brand-orange] hover:bg-[--brand-orange-bright] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm shadow-[0_8px_30px_-8px_rgba(193,86,15,0.6)]"
+              className="bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-bright)] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm shadow-[0_8px_30px_-8px_rgba(193,86,15,0.6)]"
             >
               {t("hero.ctaSpecials")}
             </a>
             <a
               href="#contactos"
-              className="border border-white/25 hover:border-white/60 transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm"
+              className="bg-white/10 border-2 border-white hover:bg-white hover:text-[var(--brand-black)] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm"
             >
               {t("hero.ctaDirections")}
             </a>
@@ -146,7 +207,7 @@ export default function HomeClient({
       <section id="pratos-do-dia" className="mx-auto max-w-6xl px-6 py-24 w-full">
         <div className="flex items-end justify-between gap-4 mb-12 flex-wrap">
           <div>
-            <span className="font-[family-name:var(--font-script)] text-2xl text-[--brand-orange] block -rotate-1">
+            <span className="font-[family-name:var(--font-script)] text-2xl text-[var(--brand-orange)] block -rotate-1">
               {t("specials.eyebrow")}
             </span>
             <h2 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl tracking-tight">
@@ -157,45 +218,44 @@ export default function HomeClient({
         </div>
 
         {specials.length === 0 ? (
-          <p className="text-neutral-500 italic border-l-4 border-[--brand-orange] pl-4 py-2">
+          <p className="text-neutral-500 italic border-l-4 border-[var(--brand-orange)] pl-4 py-2">
             {t("specials.empty")}
           </p>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {specials.map((s) => (
-              <div
-                key={s.id}
-                className="group relative border-2 border-[--brand-black] rounded-2xl p-6 flex flex-col gap-2 bg-white shadow-[6px_6px_0_0_var(--brand-black)] hover:shadow-[9px_9px_0_0_var(--brand-orange)] hover:-translate-y-0.5 hover:-translate-x-0.5 transition-all"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex flex-col items-center justify-center bg-[--brand-black] text-white rounded-xl w-14 h-14 shrink-0">
-                    <span className="text-lg font-extrabold leading-none">
-                      {formatDayNumber(s.date)}
-                    </span>
-                    <span className="text-[10px] uppercase tracking-wider text-[--brand-mustard]">
-                      {formatMonthShort(s.date)}
+            {specials.map((s, i) => (
+              <Reveal key={s.id} className={`delay-[${Math.min(i, 6) * 60}ms]`}>
+                <div className="group relative h-full border-2 border-[var(--brand-black)] rounded-2xl p-6 flex flex-col gap-2 bg-white shadow-[6px_6px_0_0_var(--brand-black)] hover:shadow-[9px_9px_0_0_var(--brand-orange)] hover:-translate-y-0.5 hover:-translate-x-0.5 transition-all">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col items-center justify-center bg-[var(--brand-black)] text-white rounded-xl w-14 h-14 shrink-0">
+                      <span className="text-lg font-extrabold leading-none">
+                        {formatDayNumber(s.date)}
+                      </span>
+                      <span className="text-[10px] uppercase tracking-wider text-[var(--brand-mustard)]">
+                        {formatMonthShort(s.date)}
+                      </span>
+                    </div>
+                    <span className="font-[family-name:var(--font-display)] font-extrabold text-2xl text-[var(--brand-orange)] whitespace-nowrap">
+                      {formatPrice(s.price)}
                     </span>
                   </div>
-                  <span className="font-[family-name:var(--font-display)] font-extrabold text-2xl text-[--brand-orange] whitespace-nowrap">
-                    {formatPrice(s.price)}
+                  <span className="text-xs uppercase tracking-widest text-neutral-400 font-medium">
+                    {formatDate(s.date)}
                   </span>
+                  <h3 className="font-semibold text-lg leading-snug">{s.title}</h3>
+                  {s.description && <p className="text-sm text-neutral-500">{s.description}</p>}
                 </div>
-                <span className="text-xs uppercase tracking-widest text-neutral-400 font-medium">
-                  {formatDate(s.date)}
-                </span>
-                <h3 className="font-semibold text-lg leading-snug">{s.title}</h3>
-                {s.description && <p className="text-sm text-neutral-500">{s.description}</p>}
-              </div>
+              </Reveal>
             ))}
           </div>
         )}
       </section>
 
       {/* Menu completo */}
-      <section id="menu" className="relative bg-[--brand-cream] scallop-bottom">
+      <section id="menu" className="relative bg-[var(--brand-cream)] scallop-bottom">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <div className="text-center mb-14">
-            <span className="font-[family-name:var(--font-script)] text-2xl text-[--brand-orange] block rotate-1">
+            <span className="font-[family-name:var(--font-script)] text-2xl text-[var(--brand-orange)] block rotate-1">
               {t("menu.eyebrow")}
             </span>
             <h2 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl tracking-tight">
@@ -208,8 +268,9 @@ export default function HomeClient({
           ) : (
             <div className="grid sm:grid-cols-2 gap-x-16 gap-y-12">
               {categories.map((category) => (
-                <div key={category}>
-                  <h3 className="font-[family-name:var(--font-display)] font-bold text-2xl text-[--brand-black] mb-4 pb-2 border-b-2 border-[--brand-orange] inline-block">
+                <Reveal key={category}>
+                  <h3 className="flex items-center gap-2 font-[family-name:var(--font-display)] font-bold text-2xl text-[var(--brand-black)] mb-4 pb-2 border-b-2 border-[var(--brand-orange)]">
+                    <CategoryIcon category={category} className="w-6 h-6 text-[var(--brand-orange)] shrink-0" />
                     {category}
                   </h3>
                   <ul className="space-y-4 mt-2">
@@ -224,43 +285,23 @@ export default function HomeClient({
                             )}
                           </div>
                           <span className="menu-leader text-neutral-400" aria-hidden />
-                          <span className="font-[family-name:var(--font-display)] font-bold whitespace-nowrap text-[--brand-orange]">
+                          <span className="font-[family-name:var(--font-display)] font-bold whitespace-nowrap text-[var(--brand-orange)]">
                             {formatPrice(item.price)}
                           </span>
                         </li>
                       ))}
                   </ul>
-                </div>
+                </Reveal>
               ))}
             </div>
           )}
         </div>
       </section>
 
-      {/* O espaço */}
-      <section className="relative h-[50vh] min-h-[320px] overflow-hidden">
-        <Image
-          src="/images/interior.jpg"
-          alt="Interior do restaurante Santa Come"
-          fill
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[--brand-black]/80 via-[--brand-black]/10 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 px-6 py-8 mx-auto max-w-6xl">
-          <span className="font-[family-name:var(--font-script)] text-2xl text-[--brand-mustard] block -rotate-1">
-            {t("space.eyebrow")}
-          </span>
-          <h2 className="font-[family-name:var(--font-display)] font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
-            {t("space.title")}
-          </h2>
-        </div>
-      </section>
-
       {/* Contactos */}
-      <section id="contactos" className="grain relative bg-[--brand-black] text-white">
+      <section id="contactos" className="grain relative bg-[var(--brand-black)] text-white">
         <div className="relative mx-auto max-w-6xl px-6 py-24">
-          <span className="font-[family-name:var(--font-script)] text-2xl text-[--brand-mustard] block -rotate-1">
+          <span className="font-[family-name:var(--font-script)] text-2xl text-[var(--brand-mustard)] block -rotate-1">
             {t("contact.eyebrow")}
           </span>
           <h2 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl tracking-tight mb-12">
@@ -270,7 +311,7 @@ export default function HomeClient({
           <div className="grid sm:grid-cols-2 gap-12">
             <div className="space-y-6 text-white/80">
               <div>
-                <p className="text-xs uppercase tracking-widest text-[--brand-mustard] mb-1">
+                <p className="text-xs uppercase tracking-widest text-[var(--brand-mustard)] mb-1">
                   {t("contact.address")}
                 </p>
                 <p className="text-lg">
@@ -282,12 +323,12 @@ export default function HomeClient({
                 </p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-widest text-[--brand-mustard] mb-1">
+                <p className="text-xs uppercase tracking-widest text-[var(--brand-mustard)] mb-1">
                   {t("contact.phone")}
                 </p>
                 <a
                   href="tel:+351261938747"
-                  className="text-lg hover:text-[--brand-orange-bright] transition-colors"
+                  className="text-lg hover:text-[var(--brand-orange-bright)] transition-colors"
                 >
                   261 938 747
                 </a>
@@ -297,7 +338,7 @@ export default function HomeClient({
                   href="https://maps.app.goo.gl/cxFpjsntb6DwRrXYA"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[--brand-orange] hover:bg-[--brand-orange-bright] transition-colors px-6 py-3 rounded-full font-semibold uppercase tracking-wide text-sm"
+                  className="inline-flex items-center gap-2 bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-bright)] transition-colors px-6 py-3 rounded-full font-semibold uppercase tracking-wide text-sm"
                 >
                   {t("contact.mapsCta")}
                 </a>
@@ -307,7 +348,7 @@ export default function HomeClient({
                   href="https://www.facebook.com/restaurantesantacome/?locale=pt_PT"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[--brand-orange-bright] transition-colors"
+                  className="hover:text-[var(--brand-orange-bright)] transition-colors"
                 >
                   Facebook
                 </a>
@@ -315,7 +356,7 @@ export default function HomeClient({
                   href="https://www.instagram.com/restaurante.santacome/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[--brand-orange-bright] transition-colors"
+                  className="hover:text-[var(--brand-orange-bright)] transition-colors"
                 >
                   Instagram
                 </a>
@@ -323,7 +364,7 @@ export default function HomeClient({
                   href="https://www.tripadvisor.pt/Restaurant_Review-g5602892-d5981355-Reviews-Santa_Come-Silveira_Lisbon_District_Central_Portugal.html"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[--brand-orange-bright] transition-colors"
+                  className="hover:text-[var(--brand-orange-bright)] transition-colors"
                 >
                   TripAdvisor
                 </a>
@@ -331,7 +372,7 @@ export default function HomeClient({
             </div>
 
             <div>
-              <p className="text-xs uppercase tracking-widest text-[--brand-mustard] mb-3">
+              <p className="text-xs uppercase tracking-widest text-[var(--brand-mustard)] mb-3">
                 {t("contact.hours")}
               </p>
               <table className="w-full max-w-sm text-sm">
@@ -355,7 +396,7 @@ export default function HomeClient({
         </div>
       </section>
 
-      <footer className="bg-[--brand-black] text-white/40 text-sm border-t border-white/10">
+      <footer className="bg-[var(--brand-black)] text-white/40 text-sm border-t border-white/10">
         <div className="mx-auto max-w-6xl px-6 py-8 flex flex-col sm:flex-row justify-between gap-4">
           <p>
             © {new Date().getFullYear()} Santa Come. {t("footer.rights")}

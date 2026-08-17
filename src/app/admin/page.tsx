@@ -14,7 +14,7 @@ export default async function AdminPage() {
 
   return (
     <div className="flex-1 flex flex-col bg-neutral-100">
-      <header className="bg-[--brand-black] text-white">
+      <header className="bg-[var(--brand-black)] text-white">
         <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Image
@@ -32,7 +32,7 @@ export default async function AdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-4 text-sm">
-            <Link href="/" className="hover:text-[--brand-orange] transition-colors">
+            <Link href="/" className="hover:text-[var(--brand-orange)] transition-colors">
               Ver site
             </Link>
             <LogoutButton />

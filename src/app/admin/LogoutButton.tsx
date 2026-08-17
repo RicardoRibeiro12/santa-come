@@ -12,7 +12,7 @@ export default function LogoutButton() {
   }
 
   return (
-    <button onClick={handleLogout} className="hover:text-[--brand-orange] transition-colors">
+    <button onClick={handleLogout} className="hover:text-[var(--brand-orange)] transition-colors">
       Sair
     </button>
   );
