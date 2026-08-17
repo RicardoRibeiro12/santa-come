@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import SeasonalBanner from "@/components/SeasonalBanner";
+import type { SeasonalCampaign } from "@/lib/seasonalCampaign";
 
 type Special = {
   id: string;
@@ -27,10 +29,12 @@ export default function HomeClient({
   specials,
   menuItems,
   categories,
+  campaign,
 }: {
   specials: Special[];
   menuItems: MenuItem[];
   categories: string[];
+  campaign: SeasonalCampaign | null;
 }) {
   const { lang, t } = useLanguage();
   const locale = LOCALE_BY_LANG[lang] ?? "pt-PT";
@@ -70,7 +74,7 @@ export default function HomeClient({
               alt="Santa Come"
               width={48}
               height={48}
-              className="rounded-full ring-2 ring-[--brand-red]/60"
+              className="rounded-full ring-2 ring-[--brand-orange]/60"
               priority
             />
             <div>
@@ -84,13 +88,13 @@ export default function HomeClient({
           </div>
           <div className="flex items-center gap-6">
             <nav className="hidden sm:flex items-center gap-8 text-sm uppercase tracking-wider">
-              <a href="#pratos-do-dia" className="hover:text-[--brand-red-bright] transition-colors">
+              <a href="#pratos-do-dia" className="hover:text-[--brand-orange-bright] transition-colors">
                 {t("nav.dailySpecials")}
               </a>
-              <a href="#menu" className="hover:text-[--brand-red-bright] transition-colors">
+              <a href="#menu" className="hover:text-[--brand-orange-bright] transition-colors">
                 {t("nav.menu")}
               </a>
-              <a href="#contactos" className="hover:text-[--brand-red-bright] transition-colors">
+              <a href="#contactos" className="hover:text-[--brand-orange-bright] transition-colors">
                 {t("nav.contact")}
               </a>
             </nav>
@@ -98,6 +102,8 @@ export default function HomeClient({
           </div>
         </div>
       </header>
+
+      {campaign && <SeasonalBanner campaign={campaign} />}
 
       {/* Hero */}
       <section className="relative grain overflow-hidden bg-[--brand-black] text-white scallop-bottom">
@@ -122,7 +128,7 @@ export default function HomeClient({
           <div className="mt-10 flex justify-center gap-4 flex-wrap">
             <a
               href="#pratos-do-dia"
-              className="bg-[--brand-red] hover:bg-[--brand-red-bright] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm shadow-[0_8px_30px_-8px_rgba(179,35,28,0.6)]"
+              className="bg-[--brand-orange] hover:bg-[--brand-orange-bright] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm shadow-[0_8px_30px_-8px_rgba(193,86,15,0.6)]"
             >
               {t("hero.ctaSpecials")}
             </a>
@@ -140,7 +146,7 @@ export default function HomeClient({
       <section id="pratos-do-dia" className="mx-auto max-w-6xl px-6 py-24 w-full">
         <div className="flex items-end justify-between gap-4 mb-12 flex-wrap">
           <div>
-            <span className="font-[family-name:var(--font-script)] text-2xl text-[--brand-red] block -rotate-1">
+            <span className="font-[family-name:var(--font-script)] text-2xl text-[--brand-orange] block -rotate-1">
               {t("specials.eyebrow")}
             </span>
             <h2 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl tracking-tight">
@@ -151,7 +157,7 @@ export default function HomeClient({
         </div>
 
         {specials.length === 0 ? (
-          <p className="text-neutral-500 italic border-l-4 border-[--brand-red] pl-4 py-2">
+          <p className="text-neutral-500 italic border-l-4 border-[--brand-orange] pl-4 py-2">
             {t("specials.empty")}
           </p>
         ) : (
@@ -159,7 +165,7 @@ export default function HomeClient({
             {specials.map((s) => (
               <div
                 key={s.id}
-                className="group relative border-2 border-[--brand-black] rounded-2xl p-6 flex flex-col gap-2 bg-white shadow-[6px_6px_0_0_var(--brand-black)] hover:shadow-[9px_9px_0_0_var(--brand-red)] hover:-translate-y-0.5 hover:-translate-x-0.5 transition-all"
+                className="group relative border-2 border-[--brand-black] rounded-2xl p-6 flex flex-col gap-2 bg-white shadow-[6px_6px_0_0_var(--brand-black)] hover:shadow-[9px_9px_0_0_var(--brand-orange)] hover:-translate-y-0.5 hover:-translate-x-0.5 transition-all"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-col items-center justify-center bg-[--brand-black] text-white rounded-xl w-14 h-14 shrink-0">
@@ -170,7 +176,7 @@ export default function HomeClient({
                       {formatMonthShort(s.date)}
                     </span>
                   </div>
-                  <span className="font-[family-name:var(--font-display)] font-extrabold text-2xl text-[--brand-red] whitespace-nowrap">
+                  <span className="font-[family-name:var(--font-display)] font-extrabold text-2xl text-[--brand-orange] whitespace-nowrap">
                     {formatPrice(s.price)}
                   </span>
                 </div>
@@ -189,7 +195,7 @@ export default function HomeClient({
       <section id="menu" className="relative bg-[--brand-cream] scallop-bottom">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <div className="text-center mb-14">
-            <span className="font-[family-name:var(--font-script)] text-2xl text-[--brand-red] block rotate-1">
+            <span className="font-[family-name:var(--font-script)] text-2xl text-[--brand-orange] block rotate-1">
               {t("menu.eyebrow")}
             </span>
             <h2 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl tracking-tight">
@@ -203,7 +209,7 @@ export default function HomeClient({
             <div className="grid sm:grid-cols-2 gap-x-16 gap-y-12">
               {categories.map((category) => (
                 <div key={category}>
-                  <h3 className="font-[family-name:var(--font-display)] font-bold text-2xl text-[--brand-black] mb-4 pb-2 border-b-2 border-[--brand-red] inline-block">
+                  <h3 className="font-[family-name:var(--font-display)] font-bold text-2xl text-[--brand-black] mb-4 pb-2 border-b-2 border-[--brand-orange] inline-block">
                     {category}
                   </h3>
                   <ul className="space-y-4 mt-2">
@@ -218,7 +224,7 @@ export default function HomeClient({
                             )}
                           </div>
                           <span className="menu-leader text-neutral-400" aria-hidden />
-                          <span className="font-[family-name:var(--font-display)] font-bold whitespace-nowrap text-[--brand-red]">
+                          <span className="font-[family-name:var(--font-display)] font-bold whitespace-nowrap text-[--brand-orange]">
                             {formatPrice(item.price)}
                           </span>
                         </li>
@@ -228,6 +234,26 @@ export default function HomeClient({
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* O espaço */}
+      <section className="relative h-[50vh] min-h-[320px] overflow-hidden">
+        <Image
+          src="/images/interior.jpg"
+          alt="Interior do restaurante Santa Come"
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[--brand-black]/80 via-[--brand-black]/10 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 px-6 py-8 mx-auto max-w-6xl">
+          <span className="font-[family-name:var(--font-script)] text-2xl text-[--brand-mustard] block -rotate-1">
+            {t("space.eyebrow")}
+          </span>
+          <h2 className="font-[family-name:var(--font-display)] font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
+            {t("space.title")}
+          </h2>
         </div>
       </section>
 
@@ -261,7 +287,7 @@ export default function HomeClient({
                 </p>
                 <a
                   href="tel:+351261938747"
-                  className="text-lg hover:text-[--brand-red-bright] transition-colors"
+                  className="text-lg hover:text-[--brand-orange-bright] transition-colors"
                 >
                   261 938 747
                 </a>
@@ -271,7 +297,7 @@ export default function HomeClient({
                   href="https://maps.app.goo.gl/cxFpjsntb6DwRrXYA"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[--brand-red] hover:bg-[--brand-red-bright] transition-colors px-6 py-3 rounded-full font-semibold uppercase tracking-wide text-sm"
+                  className="inline-flex items-center gap-2 bg-[--brand-orange] hover:bg-[--brand-orange-bright] transition-colors px-6 py-3 rounded-full font-semibold uppercase tracking-wide text-sm"
                 >
                   {t("contact.mapsCta")}
                 </a>
@@ -281,7 +307,7 @@ export default function HomeClient({
                   href="https://www.facebook.com/restaurantesantacome/?locale=pt_PT"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[--brand-red-bright] transition-colors"
+                  className="hover:text-[--brand-orange-bright] transition-colors"
                 >
                   Facebook
                 </a>
@@ -289,7 +315,7 @@ export default function HomeClient({
                   href="https://www.instagram.com/restaurante.santacome/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[--brand-red-bright] transition-colors"
+                  className="hover:text-[--brand-orange-bright] transition-colors"
                 >
                   Instagram
                 </a>
@@ -297,7 +323,7 @@ export default function HomeClient({
                   href="https://www.tripadvisor.pt/Restaurant_Review-g5602892-d5981355-Reviews-Santa_Come-Silveira_Lisbon_District_Central_Portugal.html"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[--brand-red-bright] transition-colors"
+                  className="hover:text-[--brand-orange-bright] transition-colors"
                 >
                   TripAdvisor
                 </a>

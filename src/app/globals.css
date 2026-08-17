@@ -5,10 +5,35 @@
   --foreground: #171717;
   --brand-black: #15110f;
   --brand-charcoal: #201a17;
-  --brand-red: #b3231c;
-  --brand-red-bright: #d6421f;
+  --brand-orange: #c1560f;
+  --brand-orange-bright: #e8791c;
   --brand-cream: #f4ede2;
   --brand-mustard: #e0a336;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Compensa o header fixo ao saltar para uma secção pelo menu */
+#pratos-do-dia,
+#menu,
+#contactos {
+  scroll-margin-top: 76px;
+}
+
+/* Foco visível e consistente em todos os elementos interativos */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--brand-orange-bright);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 @theme inline {
@@ -24,6 +49,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  caret-color: transparent; /* esconde o cursor de "caret browsing" em texto normal */
+}
+
+input,
+textarea {
+  caret-color: var(--brand-orange); /* mantém o cursor visível em campos de formulário reais */
 }
 
 /* Subtle grain texture used over dark sections for a less flat, printed look */

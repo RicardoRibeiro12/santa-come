@@ -54,7 +54,7 @@ export default function AdminDashboard() {
           onClick={() => setTab("specials")}
           className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
             tab === "specials"
-              ? "border-[--brand-red] text-[--brand-red]"
+              ? "border-[--brand-orange] text-[--brand-orange]"
               : "border-transparent text-neutral-500 hover:text-neutral-800"
           }`}
         >
@@ -64,7 +64,7 @@ export default function AdminDashboard() {
           onClick={() => setTab("menu")}
           className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
             tab === "menu"
-              ? "border-[--brand-red] text-[--brand-red]"
+              ? "border-[--brand-orange] text-[--brand-orange]"
               : "border-transparent text-neutral-500 hover:text-neutral-800"
           }`}
         >
@@ -206,7 +206,7 @@ function DailySpecialsPanel({
         <button
           type="submit"
           disabled={saving}
-          className="mt-4 bg-[--brand-red] text-white rounded-lg px-5 py-2 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="mt-4 bg-[--brand-orange] text-white rounded-lg px-5 py-2 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {saving ? "A guardar..." : "Adicionar"}
         </button>
@@ -376,7 +376,7 @@ function MenuItemsPanel({ items, onChange }: { items: MenuItem[]; onChange: () =
         <button
           type="submit"
           disabled={saving}
-          className="mt-4 bg-[--brand-red] text-white rounded-lg px-5 py-2 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="mt-4 bg-[--brand-orange] text-white rounded-lg px-5 py-2 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {saving ? "A guardar..." : "Adicionar"}
         </button>
