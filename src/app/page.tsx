@@ -1,69 +1,270 @@
 import Image from "next/image";
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+function formatPrice(price: number) {
+  return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(price);
+}
+
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat("pt-PT", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(date);
+}
+
+export default async function Home() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const [specials, menuItems] = await Promise.all([
+    prisma.dailySpecial.findMany({
+      where: { date: { gte: new Date(todayStr) }, available: true },
+      orderBy: { date: "asc" },
+      take: 7,
+    }),
+    prisma.menuItem.findMany({
+      where: { available: true },
+      orderBy: [{ category: "asc" }, { order: "asc" }, { name: "asc" }],
+    }),
+  ]);
+
+  const categories = Array.from(new Set(menuItems.map((i) => i.category)));
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <div className="flex-1 flex flex-col">
+      {/* Header */}
+      <header className="bg-[--brand-black] text-white">
+        <div className="mx-auto max-w-5xl px-6 py-6 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
             <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+              src="/images/logo.jpg"
+              alt="Santa Come"
+              width={56}
+              height={56}
+              className="rounded-full"
+              priority
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div>
+              <p className="font-[family-name:var(--font-display)] text-xl leading-tight">
+                Santa Come
+              </p>
+              <p className="text-xs uppercase tracking-widest text-white/60">
+                Self-Service &amp; Take Away — Santa Cruz
+              </p>
+            </div>
+          </div>
+          <nav className="hidden sm:flex items-center gap-6 text-sm">
+            <a href="#pratos-do-dia" className="hover:text-[--brand-red] transition-colors">
+              Pratos do dia
+            </a>
+            <a href="#menu" className="hover:text-[--brand-red] transition-colors">
+              Menu
+            </a>
+            <a href="#contactos" className="hover:text-[--brand-red] transition-colors">
+              Contactos
+            </a>
+          </nav>
         </div>
-      </main>
+      </header>
+
+      {/* Hero */}
+      <section className="bg-[--brand-black] text-white pb-16 pt-4">
+        <div className="mx-auto max-w-5xl px-6 text-center">
+          <h1 className="font-[family-name:var(--font-display)] text-4xl sm:text-5xl">
+            Bem-vindo ao Santa Come
+          </h1>
+          <p className="mt-4 text-white/70 max-w-xl mx-auto">
+            Restaurante self-service e take away em Santa Cruz. Comida caseira, pratos do dia
+            atualizados e preços justos.
+          </p>
+          <div className="mt-8 flex justify-center gap-3 flex-wrap">
+            <a
+              href="#pratos-do-dia"
+              className="bg-[--brand-red] hover:opacity-90 transition-opacity px-6 py-3 rounded-full font-medium"
+            >
+              Ver pratos do dia
+            </a>
+            <a
+              href="#contactos"
+              className="border border-white/30 hover:border-white/60 transition-colors px-6 py-3 rounded-full font-medium"
+            >
+              Como chegar
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Pratos do dia */}
+      <section id="pratos-do-dia" className="mx-auto max-w-5xl px-6 py-16 w-full">
+        <h2 className="font-[family-name:var(--font-display)] text-3xl mb-2">Pratos do dia</h2>
+        <p className="text-neutral-500 mb-8">Atualizado pelos nossos donos regularmente.</p>
+
+        {specials.length === 0 ? (
+          <p className="text-neutral-500 italic">
+            Ainda não há pratos do dia publicados. Volta a passar por aqui em breve!
+          </p>
+        ) : (
+          <div className="grid sm:grid-cols-2 gap-4">
+            {specials.map((s) => (
+              <div
+                key={s.id}
+                className="border border-neutral-200 rounded-2xl p-5 flex flex-col gap-1 bg-white shadow-sm"
+              >
+                <span className="text-xs uppercase tracking-widest text-[--brand-red] font-semibold">
+                  {formatDate(s.date)}
+                </span>
+                <div className="flex items-baseline justify-between gap-2">
+                  <h3 className="font-semibold text-lg">{s.title}</h3>
+                  <span className="font-semibold whitespace-nowrap">{formatPrice(s.price)}</span>
+                </div>
+                {s.description && (
+                  <p className="text-sm text-neutral-500">{s.description}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Menu completo */}
+      <section id="menu" className="bg-[--brand-cream]">
+        <div className="mx-auto max-w-5xl px-6 py-16">
+          <h2 className="font-[family-name:var(--font-display)] text-3xl mb-8">Menu</h2>
+
+          {categories.length === 0 ? (
+            <p className="text-neutral-500 italic">O menu vai ser publicado brevemente.</p>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-x-12 gap-y-10">
+              {categories.map((category) => (
+                <div key={category}>
+                  <h3 className="font-[family-name:var(--font-display)] text-xl text-[--brand-red] mb-3">
+                    {category}
+                  </h3>
+                  <ul className="space-y-3">
+                    {menuItems
+                      .filter((i) => i.category === category)
+                      .map((item) => (
+                        <li key={item.id} className="flex items-baseline justify-between gap-4">
+                          <div>
+                            <p className="font-medium">{item.name}</p>
+                            {item.description && (
+                              <p className="text-sm text-neutral-500">{item.description}</p>
+                            )}
+                          </div>
+                          <span className="font-semibold whitespace-nowrap">
+                            {formatPrice(item.price)}
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Contactos */}
+      <section id="contactos" className="mx-auto max-w-5xl px-6 py-16 w-full">
+        <h2 className="font-[family-name:var(--font-display)] text-3xl mb-8">Contactos</h2>
+        <div className="grid sm:grid-cols-2 gap-10">
+          <div className="space-y-4 text-neutral-700">
+            <p>
+              <strong>Morada:</strong>
+              <br />
+              Pátio da Azenha, Lt. 8, Lj A
+              <br />
+              R. da Azenha 9, 2560-474 Silveira
+              <br />
+              Santa Cruz, Lisboa
+            </p>
+            <p>
+              <strong>Telefone:</strong>{" "}
+              <a href="tel:+351261938747" className="hover:text-[--brand-red] transition-colors">
+                261 938 747
+              </a>
+            </p>
+            <div>
+              <strong>Horário:</strong>
+              <table className="mt-1 text-sm">
+                <tbody>
+                  {[
+                    ["Segunda-feira", "11:30–22:30"],
+                    ["Terça-feira", "Encerrado"],
+                    ["Quarta-feira", "11:30–22:30"],
+                    ["Quinta-feira", "11:30–22:30"],
+                    ["Sexta-feira", "11:30–22:30"],
+                    ["Sábado", "11:30–22:30"],
+                    ["Domingo", "11:30–22:30"],
+                  ].map(([day, hours]) => (
+                    <tr key={day}>
+                      <td className="pr-4 py-0.5 text-neutral-500">{day}</td>
+                      <td
+                        className={
+                          hours === "Encerrado" ? "py-0.5 text-neutral-400" : "py-0.5 font-medium"
+                        }
+                      >
+                        {hours}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p>
+              <a
+                href="https://maps.app.goo.gl/cxFpjsntb6DwRrXYA"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[--brand-red] font-medium hover:underline"
+              >
+                Ver no Google Maps →
+              </a>
+            </p>
+          </div>
+          <div className="space-y-3">
+            <p className="font-medium">Segue-nos:</p>
+            <div className="flex flex-col gap-2 text-neutral-700">
+              <a
+                href="https://www.facebook.com/restaurantesantacome/?locale=pt_PT"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[--brand-red] transition-colors"
+              >
+                Facebook
+              </a>
+              <a
+                href="https://www.instagram.com/restaurante.santacome/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[--brand-red] transition-colors"
+              >
+                Instagram
+              </a>
+              <a
+                href="https://www.tripadvisor.pt/Restaurant_Review-g5602892-d5981355-Reviews-Santa_Come-Silveira_Lisbon_District_Central_Portugal.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[--brand-red] transition-colors"
+              >
+                TripAdvisor
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="bg-[--brand-black] text-white/60 text-sm">
+        <div className="mx-auto max-w-5xl px-6 py-8 flex flex-col sm:flex-row justify-between gap-4">
+          <p>© {new Date().getFullYear()} Santa Come. Todos os direitos reservados.</p>
+          <Link href="/admin" className="hover:text-white transition-colors">
+            Área reservada
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 }

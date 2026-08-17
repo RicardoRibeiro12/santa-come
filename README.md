@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Santa Come — site + painel de gestão
 
-## Getting Started
+Site do restaurante Santa Come (self-service & take away, Santa Cruz), com uma
+área reservada onde os donos podem publicar os **pratos do dia** e atualizar
+**preços** do menu, sem precisar de mexer em código.
 
-First, run the development server:
+- Referências usadas: [Facebook](https://www.facebook.com/restaurantesantacome/?locale=pt_PT),
+  [Instagram](https://www.instagram.com/restaurante.santacome/),
+  [TripAdvisor](https://www.tripadvisor.pt/Restaurant_Review-g5602892-d5981355-Reviews-Santa_Come-Silveira_Lisbon_District_Central_Portugal.html),
+  [Google Maps](https://maps.app.goo.gl/cxFpjsntb6DwRrXYA).
+- Logótipo em [`public/images/logo.jpg`](public/images/logo.jpg).
+
+## Stack
+
+- **Next.js 16** (App Router, TypeScript, Tailwind CSS)
+- **Prisma 7** como ORM, com o adaptador `@prisma/adapter-pg` (funciona com qualquer
+  Postgres: Neon, Supabase, Vercel Postgres, etc.)
+- **Postgres** — usar um plano gratuito (recomendado: [Neon](https://neon.tech))
+- Autenticação simples: uma password partilhada, sessão em cookie assinado (JWT)
+
+## Configuração inicial (obrigatória antes de correr o projeto)
+
+1. Cria uma conta grátis em [neon.tech](https://neon.tech) e uma base de dados nova.
+2. Copia a **connection string** (algo como
+   `postgresql://user:password@ep-xxxx.neon.tech/dbname?sslmode=require`).
+3. Cola-a em `.env`, na variável `DATABASE_URL`.
+4. Cria as tabelas na base de dados:
+
+   ```bash
+   npx prisma migrate dev --name init
+   ```
+
+5. Muda `ADMIN_PASSWORD` em `.env` para uma password à tua escolha.
+
+## Como correr localmente
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) para o site público e
+[http://localhost:3000/admin](http://localhost:3000/admin) para o painel de gestão
+(password definida em `.env`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Nunca** commits o ficheiro `.env` para o git — já está no `.gitignore`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Estrutura de dados
 
-## Learn More
+- **`DailySpecial`** — pratos do dia (data, título, descrição, preço, visível/oculto).
+- **`MenuItem`** — itens do menu fixo, agrupados por categoria (nome, descrição, preço, disponível).
 
-To learn more about Next.js, take a look at the following resources:
+Ambos são geridos 100% através do painel `/admin` (criar, editar preço, esconder, remover).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy no Netlify
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Sobe o projeto para um repositório no GitHub (`git push`).
+2. No [Netlify](https://app.netlify.com) → **Add new site → Import an existing project**
+   → escolhe o repositório. O Netlify deteta automaticamente que é Next.js.
+3. Em **Site configuration → Environment variables**, adiciona:
+   - `DATABASE_URL` — a connection string do Neon (usa a mesma da tua `.env`, ou cria
+     uma base de dados Neon separada só para produção)
+   - `ADMIN_PASSWORD` — password forte para o painel
+   - `AUTH_SECRET` — string aleatória longa (a que já está em `.env` serve, ou gera outra
+     com `openssl rand -base64 32`)
+4. Deploy. Se ainda não correste as migrações contra essa base de dados, corre uma vez
+   (localmente, apontando `DATABASE_URL` para a base de produção):
 
-## Deploy on Vercel
+   ```bash
+   npx prisma migrate deploy
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Por fazer / a confirmar com os donos
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Popular o menu completo e os primeiros pratos do dia através do painel `/admin`.
+- Trocar a `ADMIN_PASSWORD` antes de publicar.

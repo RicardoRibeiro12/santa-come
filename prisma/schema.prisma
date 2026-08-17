@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Postgres (free tier via Neon, Supabase, etc.). DATABASE_URL is read from
+// .env locally and from the hosting provider's environment variables in
+// production — see README.md for the setup steps.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  category    String
+  name        String
+  description String?
+  price       Float
+  available   Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DailySpecial {
+  id          String   @id @default(cuid())
+  date        DateTime @unique
+  title       String
+  description String?
+  price       Float
+  available   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
