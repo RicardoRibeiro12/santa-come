@@ -45,7 +45,8 @@ export default function HomeClient({
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    // só fica sólido depois de sair da foto do hero (~86vh), não ao primeiro pixel de scroll
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.8);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
