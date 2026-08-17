@@ -48,9 +48,28 @@ Abre [http://localhost:3000](http://localhost:3000) para o site público e
 ## Estrutura de dados
 
 - **`DailySpecial`** — pratos do dia (data, título, descrição, preço, visível/oculto).
-- **`MenuItem`** — itens do menu fixo, agrupados por categoria (nome, descrição, preço, disponível).
+  Gerido através do painel `/admin` (criar, editar preço, esconder, remover).
+- **Menu completo** — duas fontes possíveis:
+  1. **`MenuItem`** na base de dados, gerido no painel `/admin` (aba "Menu completo"); ou
+  2. **Google Sheets**, se a variável `MENU_SHEET_CSV_URL` estiver definida — nesse caso
+     o site lê o menu diretamente da folha a cada visita e ignora a tabela `MenuItem`.
 
-Ambos são geridos 100% através do painel `/admin` (criar, editar preço, esconder, remover).
+### Menu via Google Sheets
+
+1. Preenche o template em [`docs/menu-template.xlsx`](docs/menu-template.xlsx) (colunas:
+   `categoria`, `nome`, `descricao`, `preco`, `disponivel`, `ordem`).
+2. Carrega-o para o Google Drive e abre-o com o Google Sheets.
+3. Garante que a folha está partilhada como "Qualquer pessoa com o link pode ver".
+4. Usa este formato de link para a variável `MENU_SHEET_CSV_URL`:
+
+   ```
+   https://docs.google.com/spreadsheets/d/<ID_DA_FOLHA>/export?format=csv
+   ```
+
+   O `<ID_DA_FOLHA>` é a parte do link entre `/d/` e `/edit`.
+5. Define essa variável no `.env` (local) e no Netlify (produção) e volta a fazer deploy.
+
+Sem essa variável definida, o site usa a tabela `MenuItem` da base de dados normalmente.
 
 ## Deploy no Netlify
 
@@ -63,6 +82,7 @@ Ambos são geridos 100% através do painel `/admin` (criar, editar preço, escon
    - `ADMIN_PASSWORD` — password forte para o painel
    - `AUTH_SECRET` — string aleatória longa (a que já está em `.env` serve, ou gera outra
      com `openssl rand -base64 32`)
+   - `MENU_SHEET_CSV_URL` — opcional, ver secção "Menu via Google Sheets" acima
 4. Deploy. Se ainda não correste as migrações contra essa base de dados, corre uma vez
    (localmente, apontando `DATABASE_URL` para a base de produção):
 

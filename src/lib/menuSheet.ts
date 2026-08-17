@@ -18,6 +18,29 @@ type SheetRow = {
 };
 
 /**
+ * Aceita preços em vários formatos (o Google Sheets pode exportar valores
+ * formatados como moeda, ex.: "2,50 €" ou "1.234,56"): remove tudo o que não
+ * for dígito/vírgula/ponto e interpreta o último separador como decimal.
+ */
+function parsePrice(raw: string): number {
+  const cleaned = raw.replace(/[^\d,.-]/g, "").trim();
+  if (!cleaned) return 0;
+
+  const lastComma = cleaned.lastIndexOf(",");
+  const lastDot = cleaned.lastIndexOf(".");
+
+  if (lastComma > lastDot) {
+    // vírgula é o separador decimal (formato PT): "1.234,56" -> 1234.56
+    return Number(cleaned.replace(/\./g, "").replace(",", ".")) || 0;
+  }
+  if (lastDot > lastComma) {
+    // ponto é o separador decimal (formato EN): "1,234.56" -> 1234.56
+    return Number(cleaned.replace(/,/g, "")) || 0;
+  }
+  return Number(cleaned) || 0;
+}
+
+/**
  * Se MENU_SHEET_CSV_URL estiver definido, o menu completo é lido diretamente
  * de uma folha do Google Sheets publicada como CSV, em vez de vir da base de
  * dados. Ver docs/menu-template.xlsx para o formato de colunas esperado.
@@ -48,7 +71,7 @@ export async function fetchMenuFromSheet(): Promise<SheetMenuItem[] | null> {
         category: (row.categoria ?? "Menu").trim(),
         name: row.nome!.trim(),
         description: row.descricao?.trim() || null,
-        price: Number(String(row.preco ?? "0").replace(",", ".")) || 0,
+        price: parsePrice(String(row.preco ?? "0")),
         available: available !== "nao" && available !== "não",
         order: Number(row.ordem) || 0,
       };

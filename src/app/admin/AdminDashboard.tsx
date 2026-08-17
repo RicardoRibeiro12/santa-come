@@ -208,10 +208,10 @@ function DailySpecialsPanel({
           disabled={saving}
           className="mt-4 bg-[--brand-red] text-white rounded-lg px-5 py-2 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          {saving ? "A guardar..." : "Guardar"}
+          {saving ? "A guardar..." : "Adicionar"}
         </button>
         <p className="text-xs text-neutral-400 mt-2">
-          Se já existir um prato para essa data, ele é substituído.
+          Podes adicionar vários pratos para o mesmo dia (ex.: peixe, carne, sopa).
         </p>
       </form>
 

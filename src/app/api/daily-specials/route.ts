@@ -9,6 +9,7 @@ const dailySpecialSchema = z.object({
   description: z.string().optional().nullable(),
   price: z.number().nonnegative(),
   available: z.boolean().optional(),
+  order: z.number().int().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -19,11 +20,13 @@ export async function GET(request: NextRequest) {
     where: upcoming
       ? { date: { gte: new Date(new Date().toISOString().slice(0, 10)) } }
       : undefined,
-    orderBy: { date: "asc" },
+    orderBy: [{ date: "asc" }, { order: "asc" }],
   });
   return NextResponse.json(items);
 }
 
+// Um dia pode ter vários pratos do dia (ex.: peixe grelhado, carne, sopa...),
+// por isso cada pedido cria sempre uma nova linha — não há "upsert" por data.
 export async function POST(request: NextRequest) {
   const unauthorized = await requireAuthResponse();
   if (unauthorized) return unauthorized;
@@ -35,10 +38,8 @@ export async function POST(request: NextRequest) {
   }
   const { date, ...rest } = parsed.data;
   try {
-    const item = await prisma.dailySpecial.upsert({
-      where: { date: new Date(date) },
-      update: rest,
-      create: { ...rest, date: new Date(date) },
+    const item = await prisma.dailySpecial.create({
+      data: { ...rest, date: new Date(date) },
     });
     return NextResponse.json(item, { status: 201 });
   } catch {
