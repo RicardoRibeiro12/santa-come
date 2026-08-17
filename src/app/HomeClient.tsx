@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -406,13 +405,10 @@ export default function HomeClient({
       </section>
 
       <footer className="bg-[var(--brand-black)] text-white/40 text-sm border-t border-white/10">
-        <div className="mx-auto max-w-6xl px-6 py-8 flex flex-col sm:flex-row justify-between gap-4">
+        <div className="mx-auto max-w-6xl px-6 py-8 text-center">
           <p>
             © {new Date().getFullYear()} Santa Come. {t("footer.rights")}
           </p>
-          <Link href="/admin" className="hover:text-white transition-colors">
-            {t("footer.admin")}
-          </Link>
         </div>
       </footer>
     </div>
