@@ -213,10 +213,15 @@ export default function HomeClient({
             <span className="font-[family-name:var(--font-script)] text-2xl text-[var(--brand-orange)] block -rotate-1">
               {t("specials.eyebrow")}
             </span>
-            <h2 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl tracking-tight">
-              {t("specials.title")}{" "}
-              <span className="text-[var(--brand-orange)]">– {todayLabel}</span>
-            </h2>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h2 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl tracking-tight">
+                {t("specials.title")}
+              </h2>
+              <span className="inline-flex items-center gap-1.5 bg-[var(--brand-black)] text-white text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-orange-bright)]" aria-hidden />
+                {todayLabel}
+              </span>
+            </div>
           </div>
           <p className="text-neutral-500 max-w-xs text-sm">{t("specials.subtitle")}</p>
         </div>
