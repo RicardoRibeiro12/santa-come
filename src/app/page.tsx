@@ -9,6 +9,12 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const todayStr = new Date().toISOString().slice(0, 10);
+  const todayLabel = new Intl.DateTimeFormat("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "Europe/Lisbon",
+  }).format(new Date());
   const useSheets = isUsingSheets();
 
   const [sheetSpecials, sheetMenu, campaign] = await Promise.all([
@@ -42,6 +48,7 @@ export default async function Home() {
       menuItems={menuItems}
       categories={categories}
       campaign={campaign}
+      todayLabel={todayLabel}
     />
   );
 }

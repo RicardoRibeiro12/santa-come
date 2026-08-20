@@ -33,11 +33,13 @@ export default function HomeClient({
   menuItems,
   categories,
   campaign,
+  todayLabel,
 }: {
   specials: Special[];
   menuItems: MenuItem[];
   categories: string[];
   campaign: SeasonalCampaign | null;
+  todayLabel: string;
 }) {
   const { lang, t } = useLanguage();
   const locale = LOCALE_BY_LANG[lang] ?? "pt-PT";
@@ -212,7 +214,8 @@ export default function HomeClient({
               {t("specials.eyebrow")}
             </span>
             <h2 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl tracking-tight">
-              {t("specials.title")}
+              {t("specials.title")}{" "}
+              <span className="text-[var(--brand-orange)]">– {todayLabel}</span>
             </h2>
           </div>
           <p className="text-neutral-500 max-w-xs text-sm">{t("specials.subtitle")}</p>
