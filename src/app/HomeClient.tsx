@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SeasonalBanner from "@/components/SeasonalBanner";
+import AutoRefresh from "@/components/AutoRefresh";
 import Reveal from "@/components/Reveal";
 import CategoryIcon from "@/components/CategoryIcon";
 import { splitIntoColumns } from "@/lib/splitIntoColumns";
@@ -85,6 +86,7 @@ export default function HomeClient({
 
   return (
     <div className="flex-1 flex flex-col">
+      <AutoRefresh />
       {/* Header — flutua transparente sobre o hero e fica opaco ao fazer scroll */}
       <header
         className={`fixed top-0 inset-x-0 z-50 text-white transition-colors duration-300 ${
