@@ -220,6 +220,12 @@ export default function HomeClient({
               )}
               <div className="mt-8 flex justify-center gap-4 flex-wrap">
                 <a
+                  href="#pratos-do-dia"
+                  className="bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-bright)] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm shadow-[0_8px_30px_-8px_rgba(193,86,15,0.6)]"
+                >
+                  {t("hero.ctaSpecials")}
+                </a>
+                <a
                   href="#contactos"
                   className="bg-white text-[var(--brand-black)] hover:bg-white/90 transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm"
                 >

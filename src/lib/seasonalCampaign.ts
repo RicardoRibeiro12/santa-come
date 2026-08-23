@@ -35,13 +35,34 @@ type CampaignRow = {
 };
 
 /**
+ * Imagens associadas a campanhas específicas, hospedadas no próprio site
+ * (public/images/) — usadas quando a folha não tem (ou já não tem) uma
+ * coluna "imagem" preenchida para essa campanha. A chave é comparada contra
+ * o nome da campanha e o título, sem distinguir maiúsculas/minúsculas.
+ *
+ * Nota: NÃO usar links do Google Drive aqui — o Drive bloqueia esse tipo de
+ * uso ("hotlinking") com Cross-Origin-Resource-Policy: same-site, e a
+ * imagem simplesmente não aparece em sites externos.
+ */
+const CAMPAIGN_IMAGE_FALLBACKS: [RegExp, string][] = [[/sapateira/i, "/images/sapateira.jpeg"]];
+
+function fallbackImageForCampaign(campanha: string, titulo: string): string | null {
+  const haystack = `${campanha} ${titulo}`;
+  for (const [pattern, path] of CAMPAIGN_IMAGE_FALLBACKS) {
+    if (pattern.test(haystack)) return path;
+  }
+  return null;
+}
+
+/**
  * Aceita tanto um link direto de imagem como um link de partilha do Google
  * Drive (".../file/d/<id>/view...") — neste último caso converte para o
- * formato de imagem direta que funciona num <img>.
+ * formato de imagem direta que funciona num <img>. Se a folha não tiver
+ * imagem definida, tenta um fallback local pelo nome da campanha.
  */
-function normalizeImageUrl(raw: string | undefined): string | null {
+function normalizeImageUrl(raw: string | undefined, campanha: string, titulo: string): string | null {
   const url = raw?.trim();
-  if (!url) return null;
+  if (!url) return fallbackImageForCampaign(campanha, titulo);
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
   if (driveMatch) {
     return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
@@ -92,7 +113,7 @@ export async function fetchActiveCampaign(): Promise<SeasonalCampaign | null> {
     endDate: active.data_fim?.trim() || null,
     price: price && !Number.isNaN(price) ? price : null,
     description: active.descricao?.trim() || null,
-    imageUrl: normalizeImageUrl(active.imagem),
+    imageUrl: normalizeImageUrl(active.imagem, active.campanha ?? "", active.titulo),
   };
 }
 
@@ -115,7 +136,7 @@ export async function fetchAllCampaigns(): Promise<SeasonalCampaignRow[] | null>
         dataFim: row.data_fim?.trim() || null,
         preco: price && !Number.isNaN(price) ? price : null,
         descricao: row.descricao?.trim() || null,
-        imagem: normalizeImageUrl(row.imagem),
+        imagem: normalizeImageUrl(row.imagem, row.campanha ?? "", row.titulo!),
       };
     });
 }

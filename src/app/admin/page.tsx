@@ -51,33 +51,18 @@ export default async function AdminPage() {
       </header>
 
       <main className="mx-auto max-w-5xl px-6 py-10 w-full flex-1">
-        {useSheets && (
-          <div className="mb-8 rounded-xl border-2 border-[var(--brand-orange)] bg-orange-50 px-5 py-4 text-sm text-neutral-800">
-            <p className="font-semibold text-[var(--brand-orange)] mb-1">
-              O site está a ler do Google Sheets, não deste painel
-            </p>
-            <p>
-              O que vês em baixo, sob &quot;Pré-visualização do Google Sheets&quot;, é exatamente o
-              que está publicado no site agora. O formulário mais abaixo (&quot;Base de dados&quot;)
-              continua a funcionar e guarda tudo, mas <strong>fica em reserva</strong> — só aparece no site
-              público se mudares <code className="bg-white px-1 rounded">DATA_SOURCE</code> para{" "}
-              <code className="bg-white px-1 rounded">database</code> nas variáveis de ambiente.
-            </p>
-          </div>
-        )}
-
-        {useSheets && (
+        {useSheets ? (
           <SheetsPreview
             menuItems={sheetMenu ?? []}
             specials={sheetSpecials ?? []}
             campaigns={campaigns ?? []}
           />
+        ) : (
+          <>
+            <h2 className="font-semibold text-lg mt-4 mb-4">Gestão do menu e pratos do dia</h2>
+            <AdminDashboard />
+          </>
         )}
-
-        <h2 className="font-semibold text-lg mt-4 mb-4">
-          {useSheets ? "Base de dados (em reserva)" : "Gestão do menu e pratos do dia"}
-        </h2>
-        <AdminDashboard />
       </main>
     </div>
   );
