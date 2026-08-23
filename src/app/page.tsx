@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { fetchMenuFromSheet } from "@/lib/menuSheet";
 import { fetchDailySpecialsFromSheet } from "@/lib/dailySpecialsSheet";
 import { fetchActiveCampaign } from "@/lib/seasonalCampaign";
+import { fetchActiveHoursNotices } from "@/lib/hoursNotice";
 import { isUsingSheets } from "@/lib/dataSource";
 import HomeClient from "./HomeClient";
 
@@ -17,10 +18,11 @@ export default async function Home() {
   }).format(new Date());
   const useSheets = isUsingSheets();
 
-  const [sheetSpecials, sheetMenu, campaign] = await Promise.all([
+  const [sheetSpecials, sheetMenu, campaign, hoursNotices] = await Promise.all([
     useSheets ? fetchDailySpecialsFromSheet() : Promise.resolve(null),
     useSheets ? fetchMenuFromSheet() : Promise.resolve(null),
     fetchActiveCampaign(),
+    fetchActiveHoursNotices(),
   ]);
 
   // DATA_SOURCE="database" força o uso da base de dados mesmo que as
@@ -49,6 +51,7 @@ export default async function Home() {
       categories={categories}
       campaign={campaign}
       todayLabel={todayLabel}
+      hoursNotices={hoursNotices}
     />
   );
 }

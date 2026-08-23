@@ -7,8 +7,10 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import AutoRefresh from "@/components/AutoRefresh";
 import Reveal from "@/components/Reveal";
 import CategoryIcon from "@/components/CategoryIcon";
+import HoursTicker from "@/components/HoursTicker";
 import { splitIntoColumns } from "@/lib/splitIntoColumns";
 import type { SeasonalCampaign } from "@/lib/seasonalCampaign";
+import type { HoursNotice } from "@/lib/hoursNotice";
 
 type Special = {
   id: string;
@@ -28,18 +30,34 @@ type MenuItem = {
 
 const LOCALE_BY_LANG: Record<string, string> = { pt: "pt-PT", en: "en-GB", fr: "fr-FR", de: "de-DE" };
 
+// Categorias de menu reconhecidas na descrição da campanha (ex.: "Entradas: camarão, ...").
+// Outras etiquetas (ex.: "Crianças:", "Reservas:") são tratadas como notas de rodapé.
+const CAMPAIGN_MENU_LABELS = ["Entradas", "Pratos", "Sobremesas", "Bebidas"];
+
+function parseCampaignDescriptionSections(text: string): { label: string; content: string }[] {
+  const matches = [...text.matchAll(/([A-ZÀ-Ú][\wà-úçãõ]*)\s*:\s*/g)];
+  if (matches.length === 0) return [];
+  return matches.map((m, i) => {
+    const start = m.index! + m[0].length;
+    const end = i + 1 < matches.length ? matches[i + 1].index! : text.length;
+    return { label: m[1], content: text.slice(start, end).trim() };
+  });
+}
+
 export default function HomeClient({
   specials,
   menuItems,
   categories,
   campaign,
   todayLabel,
+  hoursNotices,
 }: {
   specials: Special[];
   menuItems: MenuItem[];
   categories: string[];
   campaign: SeasonalCampaign | null;
   todayLabel: string;
+  hoursNotices: HoursNotice[];
 }) {
   const { lang, t } = useLanguage();
   const locale = LOCALE_BY_LANG[lang] ?? "pt-PT";
@@ -52,6 +70,19 @@ export default function HomeClient({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Se a descrição da campanha tiver pelo menos 2 categorias reconhecidas
+  // (Entradas/Pratos/Sobremesas/Bebidas), mostra-as como cards em vez de texto corrido.
+  const campaignDescriptionSections = campaign?.description
+    ? parseCampaignDescriptionSections(campaign.description)
+    : [];
+  const campaignMenuSections = campaignDescriptionSections.filter((s) =>
+    CAMPAIGN_MENU_LABELS.includes(s.label)
+  );
+  const campaignNoteSections = campaignDescriptionSections.filter(
+    (s) => !CAMPAIGN_MENU_LABELS.includes(s.label)
+  );
+  const showCampaignMenuCards = campaignMenuSections.length >= 2;
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(price);
@@ -162,6 +193,13 @@ export default function HomeClient({
           </nav>
         )}
       </header>
+
+      {/* Aviso de horário especial (Natal, Fim de Ano, ou dias extra encerrados) — só aparece se houver algum ativo na aba "Horarios" */}
+      {hoursNotices.length > 0 && (
+        <div className="fixed top-[80px] inset-x-0 z-40">
+          <HoursTicker notices={hoursNotices} />
+        </div>
+      )}
 
       {/* Hero — usa a imagem da campanha ativa, se houver, senão a foto do espaço */}
       <section className="relative overflow-hidden bg-[var(--brand-black)] text-white min-h-[86vh] flex flex-col justify-end">
@@ -322,22 +360,60 @@ export default function HomeClient({
           <Reveal>
             <div
               className={`relative overflow-hidden rounded-3xl bg-[var(--brand-black)] text-white ${
-                campaign.imageUrl ? "grid sm:grid-cols-2" : ""
+                campaign.imageUrl || campaign.bannerImageUrl ? "grid sm:grid-cols-2" : ""
               }`}
             >
-              {campaign.imageUrl && (
+              {campaign.bannerImageUrl ? (
                 <div className="relative min-h-[260px] sm:min-h-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={campaign.imageUrl}
-                    alt={campaign.title}
-                    className="absolute inset-0 w-full h-full object-contain"
+                    src={campaign.bannerImageUrl}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-black)] via-[var(--brand-black)]/20 to-[var(--brand-black)]/25" />
+                  <div className="relative h-full flex flex-col items-center justify-center gap-3 p-8 text-center">
+                    <Image
+                      src="/images/logo.jpg"
+                      alt="Santa Come"
+                      width={72}
+                      height={72}
+                      className="rounded-full ring-2 ring-white/70 shadow-lg"
+                    />
+                    {(() => {
+                      const match = campaign.title.match(/^(Jantar)\s+(.*)$/i);
+                      return match ? (
+                        <>
+                          <span className="font-[family-name:var(--font-script)] text-3xl text-white -rotate-2">
+                            {match[1]}
+                          </span>
+                          <span className="font-[family-name:var(--font-display)] font-black text-4xl sm:text-5xl tracking-tight text-[var(--brand-mustard)] leading-none -mt-2 drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+                            {match[2]}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-[family-name:var(--font-display)] font-black text-4xl sm:text-5xl tracking-tight text-[var(--brand-mustard)] leading-none drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+                          {campaign.title}
+                        </span>
+                      );
+                    })()}
+                  </div>
                 </div>
+              ) : (
+                campaign.imageUrl && (
+                  <div className="relative min-h-[260px] sm:min-h-full">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={campaign.imageUrl}
+                      alt={campaign.title}
+                      className="absolute inset-0 w-full h-full object-contain"
+                    />
+                  </div>
+                )
               )}
               <div
                 className={
-                  campaign.imageUrl
+                  campaign.imageUrl || campaign.bannerImageUrl
                     ? "p-8 sm:p-10 flex flex-col justify-center"
                     : "p-10 sm:p-16 flex flex-col items-center text-center max-w-2xl mx-auto"
                 }
@@ -349,10 +425,48 @@ export default function HomeClient({
                   {campaign.title}
                 </h3>
                 {campaign.subtitle && <p className="mt-2 text-white/80">{campaign.subtitle}</p>}
-                {campaign.description && (
-                  <p className="mt-3 text-sm text-white/70 leading-relaxed">
-                    {campaign.description}
-                  </p>
+                {showCampaignMenuCards ? (
+                  <>
+                    <div
+                      className={`mt-5 grid gap-3 w-full text-left ${
+                        campaign.imageUrl ? "grid-cols-1" : "sm:grid-cols-2"
+                      }`}
+                    >
+                      {campaignMenuSections.map((section) => (
+                        <div
+                          key={section.label}
+                          className="rounded-2xl border border-white/15 bg-white/5 p-4"
+                        >
+                          <h4 className="font-[family-name:var(--font-display)] font-bold text-base text-[var(--brand-mustard)] mb-1.5">
+                            {section.label}
+                          </h4>
+                          <ul className="space-y-1 text-sm text-white/75 leading-snug">
+                            {section.content
+                              .replace(/\.$/, "")
+                              .split(",")
+                              .map((item) => item.trim())
+                              .filter(Boolean)
+                              .map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                    {campaignNoteSections.length > 0 && (
+                      <p className="mt-3 text-xs text-white/55">
+                        {campaignNoteSections
+                          .map((n) => `${n.label}: ${n.content.replace(/\.$/, "")}`)
+                          .join("  ·  ")}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  campaign.description && (
+                    <p className="mt-3 text-sm text-white/70 leading-relaxed">
+                      {campaign.description}
+                    </p>
+                  )
                 )}
                 <div className="mt-6 flex items-center gap-4 flex-wrap justify-center">
                   {campaign.price != null && (
@@ -362,12 +476,15 @@ export default function HomeClient({
                       )}
                     </span>
                   )}
-                  <a
-                    href="#menu"
-                    className="bg-[var(--brand-sea)] hover:bg-[var(--brand-sea-bright)] transition-colors px-6 py-3 rounded-full font-semibold uppercase tracking-wide text-sm"
-                  >
-                    {t("offer.cta")}
-                  </a>
+                  {/* No Fim de Ano o cardápio já vem todo nos cards acima — não faz sentido mandar para o menu completo do dia-a-dia */}
+                  {!campaign.bannerImageUrl && (
+                    <a
+                      href="#menu"
+                      className="bg-[var(--brand-sea)] hover:bg-[var(--brand-sea-bright)] transition-colors px-6 py-3 rounded-full font-semibold uppercase tracking-wide text-sm"
+                    >
+                      {t("offer.cta")}
+                    </a>
+                  )}
                 </div>
               </div>
             </div>

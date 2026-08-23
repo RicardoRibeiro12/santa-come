@@ -8,6 +8,8 @@ export type SeasonalCampaign = {
   price: number | null;
   description: string | null;
   imageUrl: string | null;
+  /** Imagem de fundo (sem texto) para a secção de oferta — logo/título ficam sobrepostos em HTML. */
+  bannerImageUrl: string | null;
 };
 
 export type SeasonalCampaignRow = {
@@ -44,11 +46,32 @@ type CampaignRow = {
  * uso ("hotlinking") com Cross-Origin-Resource-Policy: same-site, e a
  * imagem simplesmente não aparece em sites externos.
  */
-const CAMPAIGN_IMAGE_FALLBACKS: [RegExp, string][] = [[/sapateira/i, "/images/sapateira.jpeg"]];
+const CAMPAIGN_IMAGE_FALLBACKS: [RegExp, string][] = [
+  [/sapateira/i, "/images/sapateira.jpeg"],
+  [/fim.?de.?ano|ano.?novo|r[ée]veillon/i, "/images/fundoheroPDA.jpg"],
+];
+
+/**
+ * Imagem de fundo (sem texto/logo) usada só na secção de oferta, com o logo
+ * e o título da campanha sobrepostos em HTML por cima (em vez de fazer parte
+ * da própria imagem) — assim ocupa sempre a altura toda sem barras pretas.
+ * Não vem do Google Sheets, é só local por campanha, tal como os fallbacks acima.
+ */
+const CAMPAIGN_BANNER_IMAGE_FALLBACKS: [RegExp, string][] = [
+  [/fim.?de.?ano|ano.?novo|r[ée]veillon/i, "/images/fundoPDA.jpg"],
+];
 
 function fallbackImageForCampaign(campanha: string, titulo: string): string | null {
   const haystack = `${campanha} ${titulo}`;
   for (const [pattern, path] of CAMPAIGN_IMAGE_FALLBACKS) {
+    if (pattern.test(haystack)) return path;
+  }
+  return null;
+}
+
+function fallbackBannerImageForCampaign(campanha: string, titulo: string): string | null {
+  const haystack = `${campanha} ${titulo}`;
+  for (const [pattern, path] of CAMPAIGN_BANNER_IMAGE_FALLBACKS) {
     if (pattern.test(haystack)) return path;
   }
   return null;
@@ -114,6 +137,7 @@ export async function fetchActiveCampaign(): Promise<SeasonalCampaign | null> {
     price: price && !Number.isNaN(price) ? price : null,
     description: active.descricao?.trim() || null,
     imageUrl: normalizeImageUrl(active.imagem, active.campanha ?? "", active.titulo),
+    bannerImageUrl: fallbackBannerImageForCampaign(active.campanha ?? "", active.titulo),
   };
 }
 
