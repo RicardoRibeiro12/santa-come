@@ -7,6 +7,7 @@ export type SeasonalCampaign = {
   endDate: string | null;
   price: number | null;
   description: string | null;
+  imageUrl: string | null;
 };
 
 export type SeasonalCampaignRow = {
@@ -18,6 +19,7 @@ export type SeasonalCampaignRow = {
   dataFim: string | null;
   preco: number | null;
   descricao: string | null;
+  imagem: string | null;
 };
 
 type CampaignRow = {
@@ -29,7 +31,23 @@ type CampaignRow = {
   data_fim?: string;
   preco?: string;
   descricao?: string;
+  imagem?: string;
 };
+
+/**
+ * Aceita tanto um link direto de imagem como um link de partilha do Google
+ * Drive (".../file/d/<id>/view...") — neste último caso converte para o
+ * formato de imagem direta que funciona num <img>.
+ */
+function normalizeImageUrl(raw: string | undefined): string | null {
+  const url = raw?.trim();
+  if (!url) return null;
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (driveMatch) {
+    return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+  }
+  return url;
+}
 
 async function fetchCampaignRows(): Promise<CampaignRow[] | null> {
   const url = process.env.SEASONAL_SHEET_CSV_URL;
@@ -74,6 +92,7 @@ export async function fetchActiveCampaign(): Promise<SeasonalCampaign | null> {
     endDate: active.data_fim?.trim() || null,
     price: price && !Number.isNaN(price) ? price : null,
     description: active.descricao?.trim() || null,
+    imageUrl: normalizeImageUrl(active.imagem),
   };
 }
 
@@ -96,6 +115,7 @@ export async function fetchAllCampaigns(): Promise<SeasonalCampaignRow[] | null>
         dataFim: row.data_fim?.trim() || null,
         preco: price && !Number.isNaN(price) ? price : null,
         descricao: row.descricao?.trim() || null,
+        imagem: normalizeImageUrl(row.imagem),
       };
     });
 }

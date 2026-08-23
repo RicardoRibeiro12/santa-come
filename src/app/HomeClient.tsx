@@ -170,41 +170,90 @@ export default function HomeClient({
         </div>
       )}
 
-      {/* Hero */}
+      {/* Hero — usa a imagem da campanha ativa, se houver, senão a foto do espaço */}
       <section className="relative overflow-hidden bg-[var(--brand-black)] text-white min-h-[86vh] flex flex-col justify-end">
-        <Image
-          src="/images/interior.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
+        {campaign?.imageUrl ? (
+          // Imagem externa (Google Sheets/Drive) — next/image exigiria configurar
+          // o domínio antecipadamente, por isso usa-se uma <img> normal aqui.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={campaign.imageUrl}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <Image
+            src="/images/interior.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-black)] via-[var(--brand-black)]/55 to-transparent" />
         <div className="relative mx-auto max-w-6xl px-6 pb-16 pt-32 text-center">
-          <span className="font-[family-name:var(--font-script)] text-3xl text-[var(--brand-mustard)] block -rotate-2">
-            {t("hero.eyebrow")}
-          </span>
-          <h1 className="font-[family-name:var(--font-display)] font-black tracking-tight text-[clamp(3rem,10vw,7.5rem)] leading-[0.95] mt-1 text-balance drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)]">
-            Santa Come
-          </h1>
-          <p className="mt-6 text-white/90 max-w-xl mx-auto text-lg text-balance drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-            {t("hero.subtitle")}
-          </p>
-          <div className="mt-10 flex justify-center gap-4 flex-wrap">
-            <a
-              href="#pratos-do-dia"
-              className="bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-bright)] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm shadow-[0_8px_30px_-8px_rgba(193,86,15,0.6)]"
-            >
-              {t("hero.ctaSpecials")}
-            </a>
-            <a
-              href="#contactos"
-              className="bg-white/10 border-2 border-white hover:bg-white hover:text-[var(--brand-black)] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm"
-            >
-              {t("hero.ctaDirections")}
-            </a>
-          </div>
+          {campaign ? (
+            <>
+              <span className="font-[family-name:var(--font-script)] text-3xl text-[var(--brand-mustard)] block -rotate-2">
+                {t("hero.eyebrow")}
+              </span>
+              <h1 className="font-[family-name:var(--font-display)] font-black tracking-tight text-[clamp(2.5rem,8vw,6rem)] leading-[0.95] mt-1 text-balance drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)]">
+                {campaign.title}
+              </h1>
+              {campaign.subtitle && (
+                <p className="mt-4 text-white/90 max-w-xl mx-auto text-lg text-balance drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+                  {campaign.subtitle}
+                </p>
+              )}
+              {campaign.price != null && (
+                <span className="inline-flex items-baseline gap-1 mt-6 bg-[var(--brand-orange)] px-6 py-3 rounded-full shadow-[0_8px_30px_-8px_rgba(193,86,15,0.6)]">
+                  <span className="font-[family-name:var(--font-display)] font-extrabold text-2xl">
+                    {new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(
+                      campaign.price
+                    )}
+                  </span>
+                  <span className="text-xs uppercase tracking-wide text-white/85">
+                    /{t("hero.perPerson")}
+                  </span>
+                </span>
+              )}
+              <div className="mt-8 flex justify-center gap-4 flex-wrap">
+                <a
+                  href="#contactos"
+                  className="bg-white text-[var(--brand-black)] hover:bg-white/90 transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm"
+                >
+                  {t("hero.ctaDirections")}
+                </a>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="font-[family-name:var(--font-script)] text-3xl text-[var(--brand-mustard)] block -rotate-2">
+                {t("hero.eyebrow")}
+              </span>
+              <h1 className="font-[family-name:var(--font-display)] font-black tracking-tight text-[clamp(3rem,10vw,7.5rem)] leading-[0.95] mt-1 text-balance drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)]">
+                Santa Come
+              </h1>
+              <p className="mt-6 text-white/90 max-w-xl mx-auto text-lg text-balance drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+                {t("hero.subtitle")}
+              </p>
+              <div className="mt-10 flex justify-center gap-4 flex-wrap">
+                <a
+                  href="#pratos-do-dia"
+                  className="bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-bright)] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm shadow-[0_8px_30px_-8px_rgba(193,86,15,0.6)]"
+                >
+                  {t("hero.ctaSpecials")}
+                </a>
+                <a
+                  href="#contactos"
+                  className="bg-white/10 border-2 border-white hover:bg-white hover:text-[var(--brand-black)] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm"
+                >
+                  {t("hero.ctaDirections")}
+                </a>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -261,6 +310,57 @@ export default function HomeClient({
           </div>
         )}
       </section>
+
+      {/* Oferta/campanha sazonal em destaque (só aparece com uma época ativa) */}
+      {campaign && (
+        <section className="mx-auto max-w-6xl px-6 pb-24 w-full">
+          <Reveal>
+            <div className="relative overflow-hidden rounded-3xl bg-[var(--brand-black)] text-white grid sm:grid-cols-2">
+              {campaign.imageUrl ? (
+                <div className="relative min-h-[260px] sm:min-h-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={campaign.imageUrl}
+                    alt={campaign.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="hidden sm:block" aria-hidden />
+              )}
+              <div className="p-8 sm:p-10 flex flex-col justify-center">
+                <span className="font-[family-name:var(--font-script)] text-xl text-[var(--brand-mustard)] -rotate-1">
+                  {t("offer.eyebrow")}
+                </span>
+                <h3 className="font-[family-name:var(--font-display)] font-extrabold text-3xl sm:text-4xl tracking-tight mt-1">
+                  {campaign.title}
+                </h3>
+                {campaign.subtitle && <p className="mt-2 text-white/80">{campaign.subtitle}</p>}
+                {campaign.description && (
+                  <p className="mt-3 text-sm text-white/70 leading-relaxed">
+                    {campaign.description}
+                  </p>
+                )}
+                <div className="mt-6 flex items-center gap-4 flex-wrap">
+                  {campaign.price != null && (
+                    <span className="font-[family-name:var(--font-display)] font-extrabold text-3xl text-[var(--brand-orange-bright)]">
+                      {new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(
+                        campaign.price
+                      )}
+                    </span>
+                  )}
+                  <a
+                    href="#menu"
+                    className="bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-bright)] transition-colors px-6 py-3 rounded-full font-semibold uppercase tracking-wide text-sm"
+                  >
+                    {t("offer.cta")}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </section>
+      )}
 
       {/* Menu completo */}
       <section id="menu" className="relative bg-[var(--brand-cream)] scallop-bottom">
