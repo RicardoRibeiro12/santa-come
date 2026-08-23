@@ -24,6 +24,7 @@ html {
 /* Compensa o header fixo ao saltar para uma secção pelo menu */
 #pratos-do-dia,
 #menu,
+#oferta,
 #contactos {
   scroll-margin-top: 76px;
 }

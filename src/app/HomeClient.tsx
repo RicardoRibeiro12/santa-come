@@ -313,7 +313,7 @@ export default function HomeClient({
 
       {/* Oferta/campanha sazonal em destaque (só aparece com uma época ativa) */}
       {campaign && (
-        <section className="mx-auto max-w-6xl px-6 pb-24 w-full">
+        <section id="oferta" className="mx-auto max-w-6xl px-6 pb-24 w-full">
           <Reveal>
             <div className="relative overflow-hidden rounded-3xl bg-[var(--brand-black)] text-white grid sm:grid-cols-2">
               {campaign.imageUrl ? (
