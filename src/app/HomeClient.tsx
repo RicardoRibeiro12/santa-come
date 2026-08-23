@@ -207,7 +207,7 @@ export default function HomeClient({
                 </p>
               )}
               {campaign.price != null && (
-                <span className="inline-flex items-baseline gap-1 mt-6 bg-[var(--brand-orange)] px-6 py-3 rounded-full shadow-[0_8px_30px_-8px_rgba(193,86,15,0.6)]">
+                <span className="inline-flex items-baseline gap-1 mt-6 bg-[var(--brand-sea)] px-6 py-3 rounded-full shadow-[0_8px_30px_-8px_rgba(29,78,102,0.6)]">
                   <span className="font-[family-name:var(--font-display)] font-extrabold text-2xl">
                     {new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(
                       campaign.price
@@ -351,7 +351,7 @@ export default function HomeClient({
                 )}
                 <div className="mt-6 flex items-center gap-4 flex-wrap justify-center">
                   {campaign.price != null && (
-                    <span className="font-[family-name:var(--font-display)] font-extrabold text-3xl text-[var(--brand-orange-bright)]">
+                    <span className="font-[family-name:var(--font-display)] font-extrabold text-3xl text-[var(--brand-sea-bright)]">
                       {new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(
                         campaign.price
                       )}
@@ -359,7 +359,7 @@ export default function HomeClient({
                   )}
                   <a
                     href="#menu"
-                    className="bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-bright)] transition-colors px-6 py-3 rounded-full font-semibold uppercase tracking-wide text-sm"
+                    className="bg-[var(--brand-sea)] hover:bg-[var(--brand-sea-bright)] transition-colors px-6 py-3 rounded-full font-semibold uppercase tracking-wide text-sm"
                   >
                     {t("offer.cta")}
                   </a>
