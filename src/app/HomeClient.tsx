@@ -315,8 +315,12 @@ export default function HomeClient({
       {campaign && (
         <section id="oferta" className="mx-auto max-w-6xl px-6 pb-24 w-full">
           <Reveal>
-            <div className="relative overflow-hidden rounded-3xl bg-[var(--brand-black)] text-white grid sm:grid-cols-2">
-              {campaign.imageUrl ? (
+            <div
+              className={`relative overflow-hidden rounded-3xl bg-[var(--brand-black)] text-white ${
+                campaign.imageUrl ? "grid sm:grid-cols-2" : ""
+              }`}
+            >
+              {campaign.imageUrl && (
                 <div className="relative min-h-[260px] sm:min-h-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -325,10 +329,14 @@ export default function HomeClient({
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 </div>
-              ) : (
-                <div className="hidden sm:block" aria-hidden />
               )}
-              <div className="p-8 sm:p-10 flex flex-col justify-center">
+              <div
+                className={
+                  campaign.imageUrl
+                    ? "p-8 sm:p-10 flex flex-col justify-center"
+                    : "p-10 sm:p-16 flex flex-col items-center text-center max-w-2xl mx-auto"
+                }
+              >
                 <span className="font-[family-name:var(--font-script)] text-xl text-[var(--brand-mustard)] -rotate-1">
                   {t("offer.eyebrow")}
                 </span>
@@ -341,7 +349,7 @@ export default function HomeClient({
                     {campaign.description}
                   </p>
                 )}
-                <div className="mt-6 flex items-center gap-4 flex-wrap">
+                <div className="mt-6 flex items-center gap-4 flex-wrap justify-center">
                   {campaign.price != null && (
                     <span className="font-[family-name:var(--font-display)] font-extrabold text-3xl text-[var(--brand-orange-bright)]">
                       {new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(
