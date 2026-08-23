@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import SeasonalBanner from "@/components/SeasonalBanner";
 import AutoRefresh from "@/components/AutoRefresh";
 import Reveal from "@/components/Reveal";
 import CategoryIcon from "@/components/CategoryIcon";
@@ -164,12 +163,6 @@ export default function HomeClient({
         )}
       </header>
 
-      {campaign && (
-        <div className="fixed top-[80px] inset-x-0 z-40">
-          <SeasonalBanner campaign={campaign} />
-        </div>
-      )}
-
       {/* Hero — usa a imagem da campanha ativa, se houver, senão a foto do espaço */}
       <section className="relative overflow-hidden bg-[var(--brand-black)] text-white min-h-[86vh] flex flex-col justify-end">
         {campaign?.imageUrl ? (
@@ -219,6 +212,12 @@ export default function HomeClient({
                 </span>
               )}
               <div className="mt-8 flex justify-center gap-4 flex-wrap">
+                <a
+                  href="#oferta"
+                  className="bg-[var(--brand-sea)] hover:bg-[var(--brand-sea-bright)] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm shadow-[0_8px_30px_-8px_rgba(29,78,102,0.6)]"
+                >
+                  {t("offer.viewCta")}
+                </a>
                 <a
                   href="#pratos-do-dia"
                   className="bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-bright)] transition-colors px-8 py-4 rounded-full font-semibold uppercase tracking-wide text-sm shadow-[0_8px_30px_-8px_rgba(193,86,15,0.6)]"
