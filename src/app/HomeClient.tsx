@@ -326,7 +326,7 @@ export default function HomeClient({
               }`}
             >
               {campaign.imageUrl && (
-                <div className="relative min-h-[260px] sm:min-h-full bg-black/40">
+                <div className="relative min-h-[260px] sm:min-h-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={campaign.imageUrl}
